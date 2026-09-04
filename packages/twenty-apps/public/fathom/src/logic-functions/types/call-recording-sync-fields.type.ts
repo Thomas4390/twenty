@@ -5,7 +5,7 @@ export type CallRecordingSyncFields = {
   title?: string;
   status?: 'PROCESSING' | 'COMPLETED';
   recordingRequestStatus?: 'REQUESTED';
-  externalRecordingId?: string;
+  fathomRecordingImportId?: string;
   startedAt?: string;
   endedAt?: string;
   transcript?: TranscriptEntry[];
