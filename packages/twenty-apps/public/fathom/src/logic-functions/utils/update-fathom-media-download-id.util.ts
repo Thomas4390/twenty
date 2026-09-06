@@ -1,6 +1,11 @@
+import { setTimeout } from 'node:timers/promises';
+
 import { type CoreApiClient } from 'twenty-client-sdk/core';
 import { type FathomMediaWriteContext } from 'src/logic-functions/types/fathom-media-write-context.type';
 import { updateFathomRecordingImport } from 'src/logic-functions/utils/update-fathom-recording-import.util';
+
+const MAX_DOWNLOAD_ID_SAVE_ATTEMPTS = 3;
+const DOWNLOAD_ID_SAVE_RETRY_DELAY_MILLISECONDS = 500;
 
 export const updateFathomMediaDownloadId = async ({
   coreApiClient,
@@ -10,12 +15,23 @@ export const updateFathomMediaDownloadId = async ({
   coreApiClient: Pick<CoreApiClient, 'mutation'>;
   downloadId: string | null;
   writeContext: FathomMediaWriteContext;
-}): Promise<boolean> =>
-  updateFathomRecordingImport({
-    coreApiClient,
-    writeContext,
-    fields: {
-      mediaDownloadId: downloadId,
-      mediaUploadCheckpoint: null,
-    },
-  });
+}): Promise<boolean> => {
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      return await updateFathomRecordingImport({
+        coreApiClient,
+        writeContext,
+        fields: {
+          mediaDownloadId: downloadId,
+          mediaUploadCheckpoint: null,
+        },
+      });
+    } catch (error) {
+      if (attempt >= MAX_DOWNLOAD_ID_SAVE_ATTEMPTS) {
+        throw error;
+      }
+
+      await setTimeout(DOWNLOAD_ID_SAVE_RETRY_DELAY_MILLISECONDS * attempt);
+    }
+  }
+};
