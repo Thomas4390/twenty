@@ -1,0 +1,26 @@
+import {
+  defineIndex,
+  STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS,
+} from 'twenty-sdk/define';
+
+import {
+  CALL_RECORDING_FATHOM_RECORDING_IMPORT_INDEX_FIELD_UNIVERSAL_IDENTIFIER,
+  CALL_RECORDING_FATHOM_RECORDING_IMPORT_INDEX_UNIVERSAL_IDENTIFIER,
+  FATHOM_RECORDING_IMPORT_ON_CALL_RECORDING_FIELD_UNIVERSAL_IDENTIFIER,
+} from 'src/constants/universal-identifiers';
+
+export default defineIndex({
+  universalIdentifier:
+    CALL_RECORDING_FATHOM_RECORDING_IMPORT_INDEX_UNIVERSAL_IDENTIFIER,
+  objectUniversalIdentifier:
+    STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.callRecording.universalIdentifier,
+  isUnique: true,
+  fields: [
+    {
+      universalIdentifier:
+        CALL_RECORDING_FATHOM_RECORDING_IMPORT_INDEX_FIELD_UNIVERSAL_IDENTIFIER,
+      fieldUniversalIdentifier:
+        FATHOM_RECORDING_IMPORT_ON_CALL_RECORDING_FIELD_UNIVERSAL_IDENTIFIER,
+    },
+  ],
+});
