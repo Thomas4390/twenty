@@ -1,6 +1,6 @@
 import { isNonEmptyString } from '@sniptt/guards';
 
-import { type CallRecordingReference } from 'src/logic-functions/types/call-recording-reference.type';
+import { type FathomRecordingImportReference } from 'src/logic-functions/types/fathom-recording-import-reference.type';
 import {
   type FathomMediaReconciliationCandidate,
   type FathomMediaReconciliationPlan,
@@ -15,7 +15,7 @@ export const buildFathomMediaReconciliationPlan = ({
   callRecordings: FathomMediaReconciliationCandidate[];
   activeConnectedAccountIds: string[];
 }): FathomMediaReconciliationPlan => {
-  const callRecordingsToComplete: CallRecordingReference[] = [];
+  const callRecordingsToComplete: FathomRecordingImportReference[] = [];
   const activeConnectedAccountIdSet = new Set(activeConnectedAccountIds);
   const disconnectedAccountIdSet = new Set<string>();
   const importGroupsByConnectedAccountId = new Map<
@@ -31,6 +31,13 @@ export const buildFathomMediaReconciliationPlan = ({
       continue;
     }
 
+    if (
+      !isNonEmptyString(callRecording.fathomRecordingImportId) ||
+      !isNonEmptyString(callRecording.fathomRecordingImportUpdatedAt)
+    ) {
+      continue;
+    }
+
     if (!activeConnectedAccountIdSet.has(callRecording.connectedAccountId)) {
       disconnectedAccountIdSet.add(callRecording.connectedAccountId);
       continue;
@@ -41,8 +48,11 @@ export const buildFathomMediaReconciliationPlan = ({
       isFathomCallRecordingImportComplete(callRecording)
     ) {
       callRecordingsToComplete.push({
-        id: callRecording.id,
-        updatedAt: callRecording.updatedAt,
+        callRecordingId: callRecording.id,
+        callRecordingUpdatedAt: callRecording.updatedAt,
+        fathomRecordingImportId: callRecording.fathomRecordingImportId,
+        fathomRecordingImportUpdatedAt:
+          callRecording.fathomRecordingImportUpdatedAt,
       });
       continue;
     }

@@ -1,3 +1,5 @@
+import { isNonEmptyString } from '@sniptt/guards';
+
 import {
   type DisconnectedFathomMediaReconciliationPlan,
   type FathomMediaReconciliationCandidate,
@@ -16,9 +18,19 @@ export const buildDisconnectedFathomMediaReconciliationPlan = (
   };
 
   for (const callRecording of callRecordings) {
+    if (
+      !isNonEmptyString(callRecording.fathomRecordingImportId) ||
+      !isNonEmptyString(callRecording.fathomRecordingImportUpdatedAt)
+    ) {
+      continue;
+    }
+
     const reference = {
-      id: callRecording.id,
-      updatedAt: callRecording.updatedAt,
+      callRecordingId: callRecording.id,
+      callRecordingUpdatedAt: callRecording.updatedAt,
+      fathomRecordingImportId: callRecording.fathomRecordingImportId,
+      fathomRecordingImportUpdatedAt:
+        callRecording.fathomRecordingImportUpdatedAt,
     };
 
     if (!isFathomMediaSettled(callRecording)) {

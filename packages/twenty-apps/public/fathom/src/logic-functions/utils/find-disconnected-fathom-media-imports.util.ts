@@ -16,10 +16,14 @@ export const findDisconnectedFathomMediaImports = async ({
     callRecordings: {
       __args: {
         filter: {
-          fathomConnectedAccountId: { eq: connectedAccountId },
+          fathomRecordingImport: {
+            connectedAccountId: { eq: connectedAccountId },
+          },
           or: [
             {
-              fathomMediaFailureReason: { is: 'NULL' },
+              fathomRecordingImport: {
+                mediaFailureReason: { is: 'NULL' },
+              },
               video: { is: 'NULL' },
               audio: { is: 'NULL' },
             },

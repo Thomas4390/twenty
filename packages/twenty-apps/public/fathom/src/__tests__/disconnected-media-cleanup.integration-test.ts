@@ -16,6 +16,20 @@ describe('Fathom disconnected media cleanup', () => {
       const connectedAccountId = randomUUID();
 
       await coreApiClient.mutation({
+        createFathomRecordingImport: {
+          __args: {
+            data: {
+              id: callRecordingId,
+              recordingId: randomUUID(),
+              connectedAccountId,
+              mediaDownloadId: randomUUID(),
+            },
+          },
+          id: true,
+        },
+      });
+
+      await coreApiClient.mutation({
         createCallRecording: {
           __args: {
             data: {
@@ -25,8 +39,7 @@ describe('Fathom disconnected media cleanup', () => {
               transcript: [],
               video,
               audio,
-              fathomConnectedAccountId: connectedAccountId,
-              fathomMediaDownloadId: randomUUID(),
+              fathomRecordingImportId: callRecordingId,
             },
           },
           id: true,
@@ -47,7 +60,7 @@ describe('Fathom disconnected media cleanup', () => {
         expect(result.data.status).toBe('SUCCESS');
         expect(result.data.data).toEqual({
           candidateCount: 1,
-          updatedCallRecordingCount: 1,
+          updatedRecordingCount: 1,
           shouldContinue: false,
         });
 
@@ -55,23 +68,32 @@ describe('Fathom disconnected media cleanup', () => {
           callRecording: {
             __args: { filter: { id: { eq: callRecordingId } } },
             status: true,
-            fathomMediaFailureReason: true,
-            fathomMediaDownloadId: true,
-            fathomMediaImportClaimedAt: true,
+          },
+          fathomRecordingImport: {
+            __args: { filter: { id: { eq: callRecordingId } } },
+            mediaFailureReason: true,
+            mediaDownloadId: true,
+            mediaImportClaimedAt: true,
           },
         });
 
-        expect(current.callRecording).toMatchObject({
-          status: 'FAILED',
-          fathomMediaFailureReason: 'connected_account_unavailable',
-          fathomMediaImportClaimedAt: null,
+        expect(current.callRecording?.status).toBe('FAILED');
+        expect(current.fathomRecordingImport).toMatchObject({
+          mediaFailureReason: 'connected_account_unavailable',
+          mediaImportClaimedAt: null,
         });
         expect(
-          isNonEmptyString(current.callRecording?.fathomMediaDownloadId),
+          isNonEmptyString(current.fathomRecordingImport?.mediaDownloadId),
         ).toBe(false);
       } finally {
         await coreApiClient.mutation({
           destroyCallRecording: { __args: { id: callRecordingId }, id: true },
+        });
+        await coreApiClient.mutation({
+          destroyFathomRecordingImport: {
+            __args: { id: callRecordingId },
+            id: true,
+          },
         });
       }
     },

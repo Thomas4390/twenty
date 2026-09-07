@@ -7,7 +7,9 @@ const buildCallRecording = (
   overrides: Partial<FathomMediaReconciliationCandidate> = {},
 ): FathomMediaReconciliationCandidate => ({
   id: 'call-recording-id',
-  externalRecordingId: '42',
+  fathomRecordingImportId: 'fathom-recording-import-id',
+  fathomRecordingImportUpdatedAt: '2026-09-04T12:01:00.000Z',
+  recordingId: '42',
   hasVideo: false,
   hasAudio: false,
   hasTranscript: true,
@@ -19,6 +21,13 @@ const buildCallRecording = (
   status: 'PROCESSING',
   updatedAt: '2026-09-04T12:00:00.000Z',
   ...overrides,
+});
+
+const buildReference = (callRecordingId: string) => ({
+  callRecordingId,
+  callRecordingUpdatedAt: '2026-09-04T12:00:00.000Z',
+  fathomRecordingImportId: 'fathom-recording-import-id',
+  fathomRecordingImportUpdatedAt: '2026-09-04T12:01:00.000Z',
 });
 
 describe('buildDisconnectedFathomMediaReconciliationPlan', () => {
@@ -46,34 +55,19 @@ describe('buildDisconnectedFathomMediaReconciliationPlan', () => {
 
     expect(plan).toEqual({
       callRecordingsToSettle: [
-        {
-          id: 'ready-to-settle',
-          updatedAt: '2026-09-04T12:00:00.000Z',
-        },
+        buildReference('ready-to-settle'),
       ],
       callRecordingsToSettleAndComplete: [
-        {
-          id: 'ready-to-settle-and-complete',
-          updatedAt: '2026-09-04T12:00:00.000Z',
-        },
+        buildReference('ready-to-settle-and-complete'),
       ],
       callRecordingsToSettleAndFail: [
-        {
-          id: 'missing-media-without-transcript',
-          updatedAt: '2026-09-04T12:00:00.000Z',
-        },
+        buildReference('missing-media-without-transcript'),
       ],
       callRecordingsToComplete: [
-        {
-          id: 'ready-to-complete',
-          updatedAt: '2026-09-04T12:00:00.000Z',
-        },
+        buildReference('ready-to-complete'),
       ],
       callRecordingsToFail: [
-        {
-          id: 'processing-without-transcript',
-          updatedAt: '2026-09-04T12:00:00.000Z',
-        },
+        buildReference('processing-without-transcript'),
       ],
     });
   });
